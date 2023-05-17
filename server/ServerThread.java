@@ -78,7 +78,7 @@ public class ServerThread extends Thread {
                         output.writeObject(paquete_enviar);
                     }
                     else{
-                        mimarco.areatexto.append("\n" + "Cliente condectado: " + nick + " Id del socket: " + socket.getInetAddress() + " puerto del socket: " + socket.getPort());
+                        mimarco.areatexto.append("\n" + "Cliente condectado: " + nick);
                         estado = "creado";
                         lista_mandar = new ArrayList<>();
 

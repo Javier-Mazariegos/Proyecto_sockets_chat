@@ -8,6 +8,7 @@ import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Objects;
+import java.util.regex.*;
 
 
 public class Main {
@@ -17,25 +18,30 @@ public class Main {
         //the port number is unique for each server
         boolean err=true;
         String input1;
-        Integer puerto = 0;
+        Integer puerto = -1;
         ServerSocket socket_verificador;
         do{
             try{
                 input1 = JOptionPane.showInputDialog("Puerto del server: ");
-                puerto = Integer.parseInt(input1);
-                if(puerto > 1023){
-                    socket_verificador = new ServerSocket(puerto);
-                    socket_verificador.close();
+                Pattern patt1 = Pattern.compile("^(102[4-9]|10[3-9][0-9]|1[1-9][0-9]{2}|[2-9][0-9]{3}|[1-3][0-9]{4}|4[0-8][0-9]{3}|49[0-1][0-9]|491[0-4][0-9]|4915[0-1])$");
+                Matcher m1 = patt1.matcher(input1);
+                if(!m1.find()){
+                    JOptionPane.showMessageDialog(null, "Ingrese otro puerto. ");
+                }
+                else{
+                    puerto = Integer.parseInt(input1);
                     err=false;
                 }
             }catch(NumberFormatException e){
                 // e.printStackTrace();
             }catch(Exception e){
+                err=false;
+
             }
         }while(err);
         
         //list to add all the clients thread
-        if(Objects.nonNull(puerto)){
+        if(puerto != -1){
 
         ArrayList<ServerThread> threadList = new ArrayList<>();
         try (ServerSocket serversocket = new ServerSocket(puerto)){
