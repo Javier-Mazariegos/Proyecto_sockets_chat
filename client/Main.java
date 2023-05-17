@@ -27,7 +27,7 @@ public class Main {
         JTextField ip_field = new JTextField();
         JTextField puerto_field = new JTextField();
         JTextField nombre_field = new JTextField();
-
+        
         Object[] fields = {"Ip del server: ",ip_field, "Puerto del server: ", puerto_field, "Nombre del cliente: ", nombre_field};
 
         JOptionPane.showConfirmDialog(null, fields, "Datos cliente", JOptionPane.OK_CANCEL_OPTION);
@@ -53,7 +53,7 @@ public class Main {
             MarcoCliente mimarco = new MarcoCliente(socket, output, datos, nombre_field.getText());
             mimarco.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            ClientRunnable clientRun = new ClientRunnable(socket, mimarco);
+            ClientRunnable clientRun = new ClientRunnable(socket, mimarco, nombre_field.getText());
 
             new Thread(clientRun).start();
             // loop closes when user enters exit command
@@ -223,6 +223,10 @@ class LaminaMarcoCliente extends JPanel {
             LocalDateTime myDateObj = LocalDateTime.now();
             DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             String formattedDate = myDateObj.format(myFormatObj);
+            if(ip.getSelectedIndex() != -1){
+
+            if((!campo1.getText().trim().equals("")))
+            {
             campochat.append("\n" + formattedDate);
             campochat.append("\nYo: " + campo1.getText());
             if(campo1.getText().equals("quit")){
@@ -242,7 +246,11 @@ class LaminaMarcoCliente extends JPanel {
                 e1.printStackTrace();
             }
 
-
+            }
+            else{
+                campo1.setText("");
+            }
+        }
         }
 
     }

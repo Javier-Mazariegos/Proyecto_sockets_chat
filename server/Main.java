@@ -15,12 +15,30 @@ public class Main {
     public static void main(String[] args) {
         //using serversocket as argument to automatically close the socket
         //the port number is unique for each server
-        String puerto = JOptionPane.showInputDialog("Puerto del server: ");
+        boolean err=true;
+        String input1;
+        Integer puerto = 0;
+        ServerSocket socket_verificador;
+        do{
+            try{
+                input1 = JOptionPane.showInputDialog("Puerto del server: ");
+                puerto = Integer.parseInt(input1);
+                if(puerto > 1023){
+                    socket_verificador = new ServerSocket(puerto);
+                    socket_verificador.close();
+                    err=false;
+                }
+            }catch(NumberFormatException e){
+                // e.printStackTrace();
+            }catch(Exception e){
+            }
+        }while(err);
+        
         //list to add all the clients thread
         if(Objects.nonNull(puerto)){
 
         ArrayList<ServerThread> threadList = new ArrayList<>();
-        try (ServerSocket serversocket = new ServerSocket(Integer.parseInt(puerto))){
+        try (ServerSocket serversocket = new ServerSocket(puerto)){
             MarcoServidor mimarco = new MarcoServidor();
             mimarco.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         

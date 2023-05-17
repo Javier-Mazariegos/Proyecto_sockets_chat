@@ -14,6 +14,7 @@ public class ServerThread extends Thread {
     private MarcoServidor mimarco;
     public String nombre_socket;
     public ArrayList<String> lista_mandar;
+    public String estado = "";
 
     public ServerThread(Socket socket, ArrayList<ServerThread> threads, MarcoServidor mimarco) {
         this.socket = socket;
@@ -36,61 +37,18 @@ public class ServerThread extends Thread {
             while (true) {
 
                 paquete_recibido = (PaqueteEnvio) input.readObject();
-                // System.out.println(threadList.size());
                 String mensaje = paquete_recibido.getMensaje();
                 String nick = paquete_recibido.getNick();
                 String ip_destino = paquete_recibido.getIp();
 
                 if (Objects.nonNull(mensaje)) {
                     if (mensaje.equals("quit")) {
-
-
-                        //System.out.println("Se está mandando");
                         paquete_enviar = new PaqueteEnvio();
                         paquete_enviar.setMensaje("quit");
                         output.writeObject(paquete_enviar);
-                        
-                        // int numero = -1;
-                        // int bandera = -1;   
-                        // String nombre_borrar = nombre_socket.trim();
-                        // for (ServerThread hilos : threadList) {
-                        //     String nombre_hilos = hilos.nombre_socket.trim();
-                        //     // System.out.println("Un elemento de la lista: " + ip_socket.getHostAddress());
-                        //     numero = numero + 1;
-                        //     if (nombre_borrar.equals(nombre_hilos)) {
-                        //         bandera = 0;
-                        //         break;
-                        //     }
-                        // }
-
-                        // if(bandera == 0){
-                        //     threadList.remove(numero);
-                        // }
-
-                        // lista_mandar = new ArrayList<>();
-
-                        // for (ServerThread hilos : threadList) {
-                        //     lista_mandar.add(hilos.nombre_socket);
-                        // }
-
-
-                        // for (ServerThread hilos : threadList) {
-                        //     try {
-                        //         System.out.println("Se está mandando salida a: " + hilos.nombre_socket);
-                        //         paquete_enviar = new PaqueteEnvio();
-                        //         paquete_enviar.setLista(lista_mandar);
-                        //         paquete_enviar.setMensaje("vacio");
-                        //         hilos.output.writeObject(paquete_enviar);
-                        //     } catch (IOException e) {
-                        //         // TODO Auto-generated catch block
-                        //         e.printStackTrace();
-                        //     }
-                        // }
-                        
-                        // //socket.close();
-                        // break;
                     }
                 }
+
 
                 if (Objects.nonNull(ip_destino) && Objects.nonNull(mensaje)) {
                     mimarco.areatexto.append("\n" + nick + ": " + mensaje + " para " + ip_destino);
@@ -105,24 +63,43 @@ public class ServerThread extends Thread {
                         }
                     }
                 } else {
-
-                    mimarco.areatexto.append("\n" + "Cliente condectado: " + nick);
                     nombre_socket = nick;
-
-                    lista_mandar = new ArrayList<>();
-
+                    Integer bandera_existe = 0;
                     for (ServerThread hilos : threadList) {
-                        lista_mandar.add(hilos.nombre_socket);
+                        if( (nombre_socket.trim().equals(hilos.nombre_socket))){
+                            bandera_existe = bandera_existe +1;
+                        }
                     }
-                    //System.out.println(lista_mandar.size());
 
-                    for (ServerThread hilos : threadList) {
-                        //System.out.println("Se está mandando");
+                    if(bandera_existe > 1){
+                        estado = "abortado";
                         paquete_enviar = new PaqueteEnvio();
-                        paquete_enviar.setLista(lista_mandar);
-                        paquete_enviar.setMensaje("vacio");
-                        hilos.output.writeObject(paquete_enviar);
+                        paquete_enviar.setMensaje("abort");
+                        output.writeObject(paquete_enviar);
                     }
+                    else{
+                        mimarco.areatexto.append("\n" + "Cliente condectado: " + nick + " Id del socket: " + socket.getInetAddress() + " puerto del socket: " + socket.getPort());
+                        estado = "creado";
+                        lista_mandar = new ArrayList<>();
+
+                        for (ServerThread hilos : threadList) {
+                                lista_mandar.add(hilos.nombre_socket);
+                            
+                        }
+                        //System.out.println(lista_mandar.size());
+                        
+                        for (ServerThread hilos : threadList) {
+                            //System.out.println("Se está mandando");
+                            paquete_enviar = new PaqueteEnvio();
+                            paquete_enviar.setLista(lista_mandar);
+                            paquete_enviar.setMensaje("vacio");
+                            hilos.output.writeObject(paquete_enviar);
+                        }
+
+                    }
+                    
+
+                    
                 }
 
             }
@@ -130,19 +107,24 @@ public class ServerThread extends Thread {
         } catch (IOException | ClassNotFoundException ex) {
 
             InetAddress ip_borrar = socket.getInetAddress();
-            String ip_borrar_string = ip_borrar.getHostAddress().trim();
+            String identificador_borrar = socket.getInetAddress().toString().trim() + Integer.toString(socket.getPort()).trim();
             String nombre_borrar = nombre_socket.trim();
             int numero = -1;
             int bandera = -1;
 
-            //System.out.println("VA A BORRRRRRRRR");
-            mimarco.areatexto.append("\n" + "Cliente desconectado: " + nombre_borrar);
+            if(estado.equals("abortado")){
+                mimarco.areatexto.append("\n" + "Se rechazó la conexión con un nombre repetido: " + nombre_borrar);
+            }
+            else{
+                mimarco.areatexto.append("\n" + "Cliente desconectado: " + nombre_borrar);
+            }
 
             for (ServerThread hilos : threadList) {
+
                 String nombre_hilos = hilos.nombre_socket.trim();
                 // System.out.println("Un elemento de la lista: " + ip_socket.getHostAddress());
                 numero = numero + 1;
-                if (nombre_borrar.equals(nombre_hilos)) {
+                if ( (hilos.socket.getInetAddress().toString().trim() + Integer.toString(hilos.socket.getPort()).trim()).equals(identificador_borrar) ) {
                     bandera = 0;
                     break;
                 }
@@ -153,7 +135,8 @@ public class ServerThread extends Thread {
             }
 
             
-            
+
+
 
             // System.out.println(threadList.size());
             lista_mandar = new ArrayList<>();
@@ -163,7 +146,6 @@ public class ServerThread extends Thread {
             }
 
             //System.out.println(lista_mandar.size());
-
             for (ServerThread hilos : threadList) {
                 try {
                     //System.out.println("Se está mandando salida a: " + hilos.nombre_socket);

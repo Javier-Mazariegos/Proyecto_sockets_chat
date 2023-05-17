@@ -17,12 +17,14 @@ public class ClientRunnable implements Runnable {
     MarcoCliente mimarco;
     LocalDateTime hora;
     DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    String mi_nombre;
     // private PrintWriter output;
 
-    public ClientRunnable(Socket s,  MarcoCliente mimarco) throws IOException {
+    public ClientRunnable(Socket s,  MarcoCliente mimarco, String mi_nombre) throws IOException {
         this.socket = s;
         this.input = new ObjectInputStream(socket.getInputStream());
         this.mimarco = mimarco;
+        this.mi_nombre = mi_nombre;
         // this.output = new PrintWriter(socket.getOutputStream(),true);
     }
     @Override
@@ -39,7 +41,10 @@ public class ClientRunnable implements Runnable {
 
                             mimarco.milamina.ip.removeAllItems();
                             for(String it: paquete_recibido.getLista()){
-                                mimarco.milamina.ip.addItem(it);
+                                if(!it.trim().equals(mi_nombre.trim())){
+                                    mimarco.milamina.ip.addItem(it);
+                                }
+                                
                             }
                             
                            
@@ -52,6 +57,13 @@ public class ClientRunnable implements Runnable {
                             socket.close();
                             //System.exit(0);
                             
+                        }
+                        else if(mensaje.equals("abort")){
+                            mimarco.dispose();
+                            mimarco.setVisible(false);
+                            input.close();
+                            socket.close();
+                            System.exit(0);
                         }
                         else{
                             hora = LocalDateTime.now();
