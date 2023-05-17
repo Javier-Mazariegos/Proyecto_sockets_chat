@@ -30,13 +30,19 @@ public class Main {
                 }
                 else{
                     puerto = Integer.parseInt(input1);
+                    socket_verificador = new ServerSocket(puerto);
+                    socket_verificador.close();
                     err=false;
                 }
             }catch(NumberFormatException e){
                 // e.printStackTrace();
             }catch(Exception e){
-                err=false;
-
+                if(!e.getMessage().equals("Address already in use: bind")){
+                    err=false;
+                }
+                else{
+                    JOptionPane.showMessageDialog(null, "Este puerto ya está en uso. ");
+                }
             }
         }while(err);
         

@@ -29,32 +29,42 @@ public class Main {
         JTextField puerto_field = new JTextField();
         JTextField nombre_field = new JTextField();
         boolean err=true;
+        Integer respuesta;
         
         Object[] fields = {"Ip del server: ",ip_field, "Puerto del server: ", puerto_field, "Nombre del cliente: ", nombre_field};
         do{
-            JOptionPane.showConfirmDialog(null, fields, "Datos cliente", JOptionPane.OK_CANCEL_OPTION);
-            Pattern patt1 = Pattern.compile("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
-            Matcher m1 = patt1.matcher(ip_field.getText());
-            if(!m1.find()){
-                JOptionPane.showMessageDialog(null, "Ingrese una ip correcta. ");
-                err=true;
-            }
-            else{
-                err=false;
-            }
+            try{
+            respuesta = JOptionPane.showConfirmDialog(null, fields, "Datos cliente", JOptionPane.OK_CANCEL_OPTION);
+            if(respuesta != 2){
+                    Pattern patt1 = Pattern.compile("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
+                    "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
+                    "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
+                    "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+                    Matcher m1 = patt1.matcher(ip_field.getText());
+                    if(!m1.find()){
+                        JOptionPane.showMessageDialog(null, "Ingrese una ip correcta. ");
+                        err=true;
+                    }
+                    else{
+                        err=false;
+                    }
 
-            Pattern patt2 = Pattern.compile("^(102[4-9]|10[3-9][0-9]|1[1-9][0-9]{2}|[2-9][0-9]{3}|[1-3][0-9]{4}|4[0-8][0-9]{3}|49[0-1][0-9]|491[0-4][0-9]|4915[0-1])$");
-            Matcher m2 = patt2.matcher(puerto_field.getText());
-            if(!m2.find()){
-                JOptionPane.showMessageDialog(null, "Ingrese un puerto. ");
-                err=true;
+                    Pattern patt2 = Pattern.compile("^(102[4-9]|10[3-9][0-9]|1[1-9][0-9]{2}|[2-9][0-9]{3}|[1-3][0-9]{4}|4[0-8][0-9]{3}|49[0-1][0-9]|491[0-4][0-9]|4915[0-1])$");
+                    Matcher m2 = patt2.matcher(puerto_field.getText());
+                    if(!m2.find()){
+                        JOptionPane.showMessageDialog(null, "Ingrese un puerto. ");
+                        err=true;
+                    }
+                    else{
+                        err=false;
+                    }
             }
             else{
                 err=false;
             }
+        }catch(Exception e){
+                err=false;
+        }
 
         }
         while(err);
